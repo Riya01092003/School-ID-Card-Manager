@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ID Card Editor</title>
+  <style>
+  :root {
+    --id-bg: white;
+    --id-font-size: 7pt;
+    --id-font-family: Arial;
+    --heading-bg: #2a4d60;
+    --heading-color: white;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .print-container {
+    display: grid;
+    margin-top: 0;
+    grid-template-columns: repeat(2, 9.1cm);
+    grid-template-rows: repeat(5, 5.7cm);
+    gap: 0.2cm;
+    padding: 0.2cm;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .id-card {
+    width: 9.1cm;
+    height: 5.7cm;
+    padding: 0.3cm;
+    background: var(--id-bg);
+    font-size: var(--id-font-size);
+    font-family: var(--id-font-family);
+    border-radius: 6px;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    box-sizing: border-box;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+  }
+
+  @media print {
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
+    .top{
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+       height: 100%;
+    width: 100%;
+    }
+
+    body * {
+      visibility: hidden;
+    }
+
+    .print-container, .print-container * {
+      visibility: visible;
+    }
+
+    .print-btn, .style-controls {
+      display: none !important;
+    }
+
+    .print-container {
+      page-break-after: always;
+      overflow: hidden;
+    }
+
+    .print-container.back {
+      display: none;
+    }
+
+    .print-container.back.active {
+      display: grid !important;
+      grid-template-columns: repeat(2, 9.1cm);
+      grid-template-rows: repeat(5, 5.7cm);
+      gap: 0.2cm;
+      padding: 0.2cm;
+    }
+
+    .id-card {
+      box-shadow: none !important;
+      border-radius: 0;
+      border: 1px solid #2a4d60;
+    }
+
+    .back-card {
+      background: white !important;
+      break-inside: avoid;
+    }
+  }
+
+  /* ---------- Other Elements Remain Same ---------- */
+  .style-controls {
+    background: #fff;
+    padding: 15px;
+    border: 1px solid #ccc;
+    margin: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .style-controls label {
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+  }
+
+  .id-header {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .logo {
+    width: 1.3cm;
+    height: 1.3cm;
+    object-fit: contain;
+  }
+
+  .school-name {
+    font-size: 10pt;
+    font-weight: 600;
+    color: #2a4d60;
+    line-height: 1.1;
+  }
+
+  .address {
+    font-size: 7pt;
+    color: #555;
+  }
+
+  .heading {
+    background-color: var(--heading-bg);
+    color: var(--heading-color);
+    font-size: 8pt;
+    padding: 4px;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .id-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .details {
+    line-height: 1.6;
+    flex: 1;
+  }
+
+  .detail-row {
+    display: flex;
+  }
+
+  .detail-label {
+    width: 1.9cm;
+    font-weight: 600;
+  }
+
+  .colon {
+    width: 0.2cm;
+  }
+
+  .detail-value {
+    flex: 1;
+  }
+
+  .photo-signature {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+  }
+
+  .signature-wrapper {
+    position: relative;
+    width: 1.6cm;
+    height: 1.0cm;
+  }
+
+  .student-photo {
+    width: 1.3cm;
+    height: 1.7cm;
+    border: 1px solid #2a4d60;
+    object-fit: cover;
+  }
+
+  .draggable-signature {
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: move;
+    z-index: 10;
+  }
+
+  .signature {
+    width: 100%;
+    height: auto;
+    background: transparent;
+    border: none;
+    padding: 0;
+    filter: none;
+    opacity: 1;
+    box-shadow: none;
+    border-radius: 3px;
+    pointer-events: none;
+  }
+
+  .principal-label {
+    font-weight: 600;
+  }
+
+  .print-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #2a4d60;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  /* ---------- BACK SIDE STYLES ---------- */
+  .back-card {
+    background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    border: 1px solid #dee2e6;
+    padding: 0.4cm;
+  }
+
+  .back-header {
+    background-color: #2a4d60;
+    color: white;
+    text-align: center;
+    padding: 0.2cm;
+    margin: -0.4cm -0.4cm 0.3cm -0.4cm;
+    border-radius: 5px 5px 0 0;
+  }
+
+  .back-header h2 {
+    margin: 0;
+    font-size: 10pt;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  .back-content {
+    font-family: 'Arial', sans-serif;
+    padding: 0.2cm;
+  }
+
+  .info-group {
+    margin-bottom: 0.3cm;
+  }
+
+  .info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.15cm;
+    font-size: 7pt;
+    color: #333;
+  }
+
+  .info-item i {
+    width: 0.4cm;
+    color: #2a4d60;
+    margin-right: 0.1cm;
+  }
+
+  .info-item .label {
+    font-weight: 600;
+    color: #2a4d60;
+    width: 2.5cm;
+  }
+
+  .info-item .value {
+    flex: 1;
+  }
+
+  .rules-section {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 0.2cm;
+    margin-bottom: 0.2cm;
+  }
+
+  .rules-section h3 {
+    color: #2a4d60;
+    font-size: 8pt;
+    margin: 0 0 0.1cm 0;
+    font-weight: 600;
+  }
+
+  .rules-section ul {
+    margin: 0;
+    padding-left: 0.4cm;
+    list-style-type: square;
+  }
+
+  .rules-section li {
+    font-size: 6.5pt;
+    color: #495057;
+    margin-bottom: 0.1cm;
+    line-height: 1.3;
+  }
+
+  .validity {
+    text-align: center;
+    font-size: 7pt;
+    color: #2a4d60;
+    font-weight: 600;
+    margin-top: 0.2cm;
+    border-top: 1px dashed #dee2e6;
+    padding-top: 0.2cm;
+  }
+
+  .validity p {
+    margin: 0;
+  }
+</style>
+
+</head>
+
+<body>
+  <div class="top">
+  <div class="controls">
+    <label>Add Field(s):</label>
+    <div id="multi-select-fields" style="display:inline-block; position:relative;">
+      <button type="button" onclick="toggleFieldDropdown()" style="padding:4px 10px;">Select Fields ▼</button>
+      <div id="field-dropdown" style="display:none; position:absolute; background:#fff; border:1px solid #ccc; z-index:10; padding:8px; min-width:160px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+        <label><input type="checkbox" value="Name"> Name</label><br>
+        <label><input type="checkbox" value="Class"> Class</label><br>
+        <label><input type="checkbox" value="Section"> Section</label><br>
+        <label><input type="checkbox" value="Roll No."> Roll No.</label><br>
+        <label><input type="checkbox" value="Father's Name"> Father's Name</label><br>
+        <label><input type="checkbox" value="Mother's Name"> Mother's Name</label><br>
+        <label><input type="checkbox" value="Mobile"> Mobile</label><br>
+        <label><input type="checkbox" value="Address"> Address</label><br>
+        <label><input type="checkbox" value="DOB"> DOB</label><br>
+        <label><input type="checkbox" value="House"> House</label><br>
+        <label><input type="checkbox" value="Principal's Signature"> Principal's Signature</label><br>
+        <button type="button" onclick="closeFieldDropdown()" style="margin-top:6px;">Close</button>
+      </div>
+    </div>
+    <button onclick="addSelectedFields()">Add</button>
+    <button onclick="togglePhotoShape()">Toggle Photo Shape</button>
+    <button id="toggleDeleteBtn" onclick="toggleDeleteMode()">Delete Field</button>
+    <button id="editFieldsBtn" onclick="enableEditMode()">Edit</button>
+    <button id="saveFieldsBtn" onclick="saveFieldEdits()" style="display:none;">Save</button>
+    <button id="layoutEditBtn" onclick="enableLayoutEditMode()">Reorder Fields</button>
+    <button id="layoutSaveBtn" onclick="disableLayoutEditMode()" style="display:none;">Done</button>
+  </div>
+
+  <!-- 🌈 Styling Controls -->
+   <div style="margin: 20px;">
+  <label>
+    <input type="checkbox" id="toggleBackCheckbox" onchange="toggleBackSide()">
+    Enable Back Side Printing
+  </label>
+</div>
+
+  <div class="style-controls">
+    <h3>Customize ID Card</h3>
+
+    <label>Background Color:
+      <input type="color" id="bgColorInput" value="#ffffff">
+    </label>
+
+    <label>Font Size:
+      <input type="number" id="fontSizeInput" value="7"> pt
+    </label>
+
+    <label>Font Family:
+      <select id="fontFamilyInput">
+        <option value="Arial">Arial</option>
+        <option value="Georgia">Georgia</option>
+        <option value="Courier New">Courier</option>
+      </select>
+    </label>
+
+    <label>Heading Background:
+      <input type="color" id="headingBgInput" value="#2a4d60">
+    </label>
+
+    <label>Heading Text Color:
+      <input type="color" id="headingColorInput" value="#ffffff">
+    </label>
+
+    <label>Upload Background Image:
+      <input type="file" id="bgImageInput" accept="image/*">
+    </label>
+    <div id="bgImagePreview" style="margin-top:8px;"></div>
+
+    <button class="print-btn" onclick="window.print()">🖨️ Print</button>
+  </div>
+  </div>
+
+  <div class="print-container">
+    <% studentsWithQr.forEach(({ student, qrCode }, cardIdx) => { %>
+      <div class="id-card">
+        <div class="id-header">
+          <img src="<%= school && school.logo ? school.logo : '' %>" alt="Logo" class="logo" />
+          <div>
+            <div class="school-name"><%= school && school.schoolName ? school.schoolName : '' %></div>
+            <div class="address"><%= school && school.address ? school.address : '' %></div>
+          </div>
+        </div>
+        <div class="heading">IDENTITY CARD - SESSION 2025–2026</div>
+        <div class="id-body">
+          <div class="details"></div>
+         <div class="photo-signature">
+  <img src="<%= student.photo %>" alt="Student" class="student-photo" />
+  
+  <!-- Signature container with proper spacing -->
+  <div class="signature-wrapper">
+    <div class="draggable-signature" id="sig-<%= cardIdx %>">
+      <img src="<%= school.signature %>" alt="Principal Signature" class="signature" />
+    </div>
+      
+  </div>
+  
+  
+</div>
+
+        </div>
+      </div>
+    <% }); %>
+  </div>
+
+  <div class="print-container back">
+  <% studentsWithQr.forEach(({ student }, cardIdx) => { %>
+    <div class="id-card back-card">
+      <div class="back-header">
+        <h2>STUDENT INFORMATION</h2>
+      </div>
+      <div class="back-content">
+        <div class="info-group">
+          <div class="info-item">
+            <i class="fas fa-tint"></i>
+            <span class="label">Blood Group:</span>
+            <span class="value"><%= student.bloodGroup || 'N/A' %></span>
+          </div>
+          <div class="info-item">
+            <i class="fas fa-phone-alt"></i>
+            <span class="label">Emergency Contact:</span>
+            <span class="value"><%= student.contact || 'N/A' %></span>
+          </div>
+          <div class="info-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <span class="label">Address:</span>
+            <span class="value"><%= student.address || 'N/A' %></span>
+          </div>
+        </div>
+        
+        <div class="rules-section">
+          <h3>SCHOOL RULES</h3>
+          <ul>
+            <li>Always wear ID card in school premises</li>
+            <li>Keep the ID card neat and visible at all times</li>
+            <li>Loss of ID card must be reported immediately</li>
+            <li>ID card is non-transferable</li>
+          </ul>
+        </div>
+
+
+      </div>
+    </div>
+  <% }); %>
+</div>
+
+
+  <div class="print-button-container">
+    <button class="print-button" onclick="window.print()">Print</button>
+  </div>
+
+  <script>
+ const signaturePositions = { top: 0, left: 0 };
+
+  function updateAllSignaturePositions() {
+    document.querySelectorAll(".draggable-signature").forEach(sig => {
+      sig.style.top = signaturePositions.top + "px";
+      sig.style.left = signaturePositions.left + "px";
+    });
+  }
+
+  document.querySelectorAll(".draggable-signature").forEach(sig => {
+    let isDragging = false, offsetX = 0, offsetY = 0;
+
+    sig.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      offsetX = e.clientX - sig.getBoundingClientRect().left;
+      offsetY = e.clientY - sig.getBoundingClientRect().top;
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      const wrapper = sig.closest(".signature-wrapper");
+      const bounds = wrapper.getBoundingClientRect();
+      const x = e.clientX - bounds.left - offsetX;
+      const y = e.clientY - bounds.top - offsetY;
+
+      signaturePositions.left = x;
+      signaturePositions.top = y;
+      updateAllSignaturePositions();
+    });
+
+    document.addEventListener("mouseup", () => {
+      isDragging = false;
+    });
+  });
+
+ function toggleBackSide() {
+  const isChecked = document.getElementById('toggleBackCheckbox')?.checked;
+  const backContainer = document.querySelector('.print-container.back');
+  if (!backContainer) return;
+
+  if (isChecked) {
+    backContainer.classList.add('active');
+  } else {
+    backContainer.classList.remove('active');
+  }
+}
+
+
+
+
+    let globalFields = [];
+    let cardFieldValues = {};
+    const fieldKeyMap = {
+      "Name": "name",
+      "Class": "class",
+      "Section": "section",
+      "Roll No.": "rollNo",
+      "Father's Name": "fathername",
+      "Mother's Name": "mothername",
+      "Mobile": "contact",
+      "Address": "address",
+      "DOB": "dob",
+      "House": "house",
+      "Principal's Signature": "principalSignature"
+    };
+    let deleteMode = false;
+    let editMode = false;
+    let layoutEditMode = false;
+
+    function toggleFieldDropdown() {
+      const dropdown = document.getElementById('field-dropdown');
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function closeFieldDropdown() {
+      document.getElementById('field-dropdown').style.display = 'none';
+    }
+
+    function addSelectedFields() {
+      const checkboxes = document.querySelectorAll('#field-dropdown input[type=checkbox]:checked');
+      checkboxes.forEach(cb => {
+        const selectedField = cb.value;
+        const key = fieldKeyMap[selectedField] || selectedField.toLowerCase().replace(/[^a-z0-9]/g, '_');
+        if (!globalFields.some(f => f.key === key)) {
+          globalFields.push({ label: selectedField, key });
+        }
+      });
+      document.querySelectorAll('#field-dropdown input[type=checkbox]').forEach(cb => cb.checked = false);
+      closeFieldDropdown();
+      renderFieldsOnAllCards();
+    }
+
+    function toggleDeleteMode() {
+      deleteMode = !deleteMode;
+      renderFieldsOnAllCards();
+    }
+
+    function enableEditMode() {
+      editMode = true;
+      document.getElementById('editFieldsBtn').style.display = 'none';
+      document.getElementById('saveFieldsBtn').style.display = '';
+      renderFieldsOnAllCards();
+    }
+
+    function saveFieldEdits() {
+      editMode = false;
+      document.getElementById('editFieldsBtn').style.display = '';
+      document.getElementById('saveFieldsBtn').style.display = 'none';
+      renderFieldsOnAllCards();
+    }
+
+    function enableLayoutEditMode() {
+  layoutEditMode = true;
+  document.getElementById('layoutEditBtn').style.display = 'none';
+  document.getElementById('layoutSaveBtn').style.display = '';
+  document.querySelectorAll('.detail-row').forEach(row => {
+    row.setAttribute('draggable', 'true');
+    row.style.cursor = 'move';
+    row.addEventListener('dragstart', dragStart);
+    row.addEventListener('dragover', dragOver);
+    row.addEventListener('drop', dropField);
+  });
+}
+
+function disableLayoutEditMode() {
+  layoutEditMode = false;
+  document.getElementById('layoutEditBtn').style.display = '';
+  document.getElementById('layoutSaveBtn').style.display = 'none';
+  document.querySelectorAll('.detail-row').forEach(row => {
+    row.removeAttribute('draggable');
+    row.style.cursor = '';
+    row.removeEventListener('dragstart', dragStart);
+    row.removeEventListener('dragover', dragOver);
+    row.removeEventListener('drop', dropField);
+  });
+}
+
+// Implement dragStart, dragOver, dropField functions to reorder fields in globalFields array
+let dragSrcIdx = null;
+
+function dragStart(e) {
+  dragSrcIdx = Array.from(this.parentNode.children).indexOf(this);
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', dragSrcIdx);
+}
+
+function dragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+}
+
+function dropField(e) {
+  e.preventDefault();
+  const dropIdx = Array.from(this.parentNode.children).indexOf(this);
+  const srcIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
+  if (srcIdx !== dropIdx && srcIdx >= 0 && dropIdx >= 0) {
+    // Move the field in globalFields
+    const moved = globalFields.splice(srcIdx, 1)[0];
+    globalFields.splice(dropIdx, 0, moved);
+    renderFieldsOnAllCards();
+    enableLayoutEditMode(); // Re-enable drag after re-render
+  }
+}
+
+    function renderFieldsOnAllCards() {
+      const cards = document.querySelectorAll('.id-card');
+      cards.forEach((card, cardIdx) => {
+        const detailsDiv = card.querySelector('.details');
+        detailsDiv.innerHTML = '';
+        if (!cardFieldValues[cardIdx]) cardFieldValues[cardIdx] = {};
+        globalFields.forEach((field, idx) => {
+          let value = cardFieldValues[cardIdx][field.key];
+          if (typeof value === 'undefined') {
+            const studentData = window.studentsWithQr && window.studentsWithQr[cardIdx] ? window.studentsWithQr[cardIdx].student : {};
+            const schoolData = window.schoolData || {};
+            
+            if (field.key === 'principalSignature') {
+              value = schoolData.signature || '';
+            } else {
+              value = studentData[field.key] || '';
+              if (field.key === 'dob' && value) {
+                try { value = new Date(value).toLocaleDateString(); } catch {}
+              }
+            }
+          }
+          const row = document.createElement('div');
+          row.className = 'detail-row';
+          
+          if (field.key === 'principalSignature') {
+            // Render signature as image
+            row.innerHTML = `
+              <span class="detail-label" contenteditable="${editMode ? 'true' : 'false'}" ${editMode ? `onblur="updateFieldLabel(${idx}, this.innerText)"` : ''}>${field.label}</span>
+              <span class="colon">:</span>
+              <div class="signature-wrapper" style="display: inline-block; position: relative;">
+                <div class="draggable-signature" style="position: absolute; top: 0; left: 0; cursor: move; z-index: 10;">
+                  <img src="${value}" alt="Principal's Signature" class="signature" style="width: 1.6cm; height: auto; background: transparent; border: none; padding: 0; filter: none; opacity: 1; box-shadow: none; border-radius: 3px; pointer-events: none;" />
+                </div>
+              </div>
+              ${deleteMode ? `<button type="button" class="remove-field-btn" style="margin-left:8px; color:#fff; background:#d9534f; border:none; border-radius:3px; padding:2px 8px; cursor:pointer; font-size:12px;" onclick="removeField(${idx})">Delete</button>` : ''}
+            `;
+          } else {
+            // Render regular text field
+            row.innerHTML = `
+              <span class="detail-label" contenteditable="${editMode ? 'true' : 'false'}" ${editMode ? `onblur="updateFieldLabel(${idx}, this.innerText)"` : ''}>${field.label}</span>
+              <span class="colon">:</span>
+              <span class="detail-value" contenteditable="${editMode ? 'true' : 'false'}" ${editMode ? `onblur="updateFieldValue(${cardIdx}, '${field.key}', this.innerText)"` : ''}>${value}</span>
+              ${deleteMode ? `<button type="button" class="remove-field-btn" style="margin-left:8px; color:#fff; background:#d9534f; border:none; border-radius:3px; padding:2px 8px; cursor:pointer; font-size:12px;" onclick="removeField(${idx})">Delete</button>` : ''}
+            `;
+          }
+          detailsDiv.appendChild(row);
+        });
+      });
+    }
+
+    function removeField(idx) {
+      globalFields.splice(idx, 1);
+      renderFieldsOnAllCards();
+    }
+
+    function updateFieldLabel(idx, newLabel) {
+      globalFields[idx].label = newLabel;
+      renderFieldsOnAllCards();
+    }
+
+    function updateFieldValue(cardIdx, key, newValue) {
+      if (!cardFieldValues[cardIdx]) cardFieldValues[cardIdx] = {};
+      cardFieldValues[cardIdx][key] = newValue;
+    }
+
+    function togglePhotoShape() {
+      const photos = document.querySelectorAll('.student-photo');
+      photos.forEach(photo => {
+        photo.style.borderRadius = photo.style.borderRadius === '50%' ? '0%' : '50%';
+      });
+    }
+
+    window.studentsWithQr = JSON.parse('<%- JSON.stringify(studentsWithQr || []) %>');
+    window.schoolData = JSON.parse('<%- JSON.stringify(school || {}) %>');
+
+    const excelToSchemaMap = {
+      'Roll No': 'rollNo',
+      'Name': 'name',
+      'Contact': 'contact',
+      'Address': 'address',
+      'DOB': 'dob',
+      'Father Name': 'fathername',
+      'Mother Name': 'mothername',
+      'House': 'house',
+      'NIC Code': 'nicCode',
+      'PEN No': 'penNo',
+      'Section': 'section',
+      'Class': 'class'
+    };
+
+    function insertStudents() {
+      const studentsToInsert = rawData.map(row => {
+        const student = {};
+        for (let excelKey in excelToSchemaMap) {
+          const schemaKey = excelToSchemaMap[excelKey];
+          if (row[excelKey] !== undefined) {
+            if (schemaKey === 'dob' && row[excelKey]) {
+              student[schemaKey] = new Date(row[excelKey]);
+            } else {
+              student[schemaKey] = row[excelKey];
+            }
+          }
+        }
+        student.idCardStatus = 'Pending';
+        student.section = teacher.section;
+        student.schoolId = teacher.schoolId;
+        student.classTeacherId = teacherId;
+        student.schoolName = school.schoolName;
+        return student;
+      });
+
+      console.log('Raw Data:', rawData); // Debugging log
+      console.log('Students to Insert:', studentsToInsert); // Debugging log
+
+      if (studentsToInsert.length > 0) {
+        // Assuming Student.insertMany is a server-side operation, this should not be here
+        console.log('Insertion successful'); // Debugging log
+        req.flash('success_msg', `${studentsToInsert.length} students imported successfully.`);
+      } else {
+        req.flash('error_msg', 'No new students were imported. Check for duplicates or missing required fields.');
+      }
+
+      res.redirect(`/class-teacher/${teacherId}`);
+    }
+
+    // Call the function if needed
+    // insertStudents();
+
+    document.getElementById('bgColorInput').addEventListener('input', e => {
+      document.documentElement.style.setProperty('--id-bg', e.target.value);
+      setAllCardBackground();
+    });
+
+    document.getElementById('fontSizeInput').addEventListener('input', e => {
+      document.documentElement.style.setProperty('--id-font-size', e.target.value + 'pt');
+    });
+
+    document.getElementById('fontFamilyInput').addEventListener('change', e => {
+      document.documentElement.style.setProperty('--id-font-family', e.target.value);
+    });
+
+    document.getElementById('headingBgInput').addEventListener('input', e => {
+      document.documentElement.style.setProperty('--heading-bg', e.target.value);
+    });
+
+    document.getElementById('headingColorInput').addEventListener('input', e => {
+      document.documentElement.style.setProperty('--heading-color', e.target.value);
+    });
+
+    // --- Background Image Upload Logic ---
+    let bgImageDataUrl = null;
+    document.getElementById('bgImageInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        bgImageDataUrl = evt.target.result;
+        setAllCardBackground();
+        // Show preview
+        document.getElementById('bgImagePreview').innerHTML = `<img src="${bgImageDataUrl}" style="max-width:120px; max-height:60px; border:1px solid #ccc; border-radius:4px;">`;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function setAllCardBackground() {
+      const cards = document.querySelectorAll('.id-card');
+      cards.forEach(card => {
+        if (bgImageDataUrl) {
+          card.style.backgroundImage = `url('${bgImageDataUrl}')`;
+        } else {
+          card.style.backgroundImage = '';
+        }
+      });
+    }
+
+    // Set background on render
+    const origRenderFieldsOnAllCards = renderFieldsOnAllCards;
+    renderFieldsOnAllCards = function() {
+      origRenderFieldsOnAllCards.apply(this, arguments);
+      setAllCardBackground();
+    }
+  </script>
+</body>
+
+</html>

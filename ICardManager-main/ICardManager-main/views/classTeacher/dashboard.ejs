@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Class Teacher Dashboard</title>
+    <link rel="stylesheet" href="/css/flash.css">
+   
+    <link rel="stylesheet" href="/css/teacher-dashboard.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Anton&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
+
+        /* Cropper Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .image-container {
+            max-height: 500px;
+            margin: 20px 0;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-primary {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            background-color: #f44336;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background-color: #45a049;
+        }
+
+        .btn-secondary:hover {
+            background-color: #da190b;
+        }
+
+        /* Photo upload button styles */
+        .upload-trigger-btn {
+            background-color: #2196F3;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .upload-trigger-btn:hover {
+            background-color: #0b7dda;
+        }
+    </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+    <!-- CropperJS CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+
+    <!-- CropperJS JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+</head>
+
+<body>
+
+  
+  <!-- Flash Message Display -->
+  <% if (success_msg && success_msg.length) { %>
+    <div class="flash-message success">
+      <span><%= success_msg %></span>
+      <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+    </div>
+  <% } %>
+  
+  <% if (error_msg && error_msg.length) { %>
+    <div class="flash-message error">
+      <span><%= error_msg %></span>
+      <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+    </div>
+  <% } %>
+  
+    <!-- Top Menu Bar -->
+    <nav class="top-bar">
+        <div class="hamburger" onclick="toggleSidebar()" style="color: black; margin-left: 100px;">☰</div>
+
+        <h2>Welcome, <%= teacher.fullName %>  </h2>
+      
+
+        <form action="/class-teacher/logout" method="post" class="logout-form">
+            <button class="logout" type="submit"> <i class="material-icons">power_settings_new</i>Log out</button>
+        </form>
+    </nav>
+
+    <!-- -----------------                  ------------------- -->
+    <!-- -----------------  SIDEBAR    ------------------- -->
+    <!-- -----------------                  ------------------- -->
+
+    <aside class="sidebar" id="mobile-sidebar">
+
+        <h2>A T S</h2>
+        <ul class="list-items">
+            <li class="menu-item"><a href="/class-teacher/<%= teacher._id %>" style="text-decoration: none; color: inherit;"><i class="material-icons">dashboard</i>Dashboard</a></li>
+              
+            <li class="menu-item" onclick="showAddForm()"><i class="material-icons">add</i> New Student</li>
+            <li class="menu-item" onclick="showAllStudents()"><i class="material-icons">groups</i>View All</li>
+            <li class="menu-item"><i class="material-icons">settings</i>Settings</li>
+
+        </ul>
+
+    </aside>
+
+
+    <!----------------------                 -------------------->
+    <!-- --------------------  Main Content   ---------------- -->
+    <!-- --------------------              ---------------- -->
+
+    <main class="main-content">
+        <div class="stats" id="stat">
+            <div class="stat-box">
+                <div class="img stu"><img src="/images/graduated.png" alt=""></div>
+                <div class="text "><span class="headText">Total Students:</span> <span class="totalstu ">
+                        <%= totalStudents %>
+                    </span></div>
+
+            </div>
+            <div class="stat-box">
+                <div class="img clas"><img src="/images/chalkboard-user.png" alt=""></div>
+                <div class="text"><span class="headText">Class:</span> <span class="totalstu">
+                        <%= teacher.class %>
+                    </span></div>
+
+            </div>
+            <div class="stat-box">
+                <div class="img sec"><img src="/images/chalkboard-user.png" alt=""></div>
+                <div class="text"><span class="headText">Section:</span> <span class="totalstu">
+                        <%= teacher.section || 'N/A' %>
+                    </span></div>
+            </div>
+            <div class="stat-box">
+                <div class="img id"><img src="/images/identification.png" alt=""></div>
+                <div class="text"><span class="headText">Pending ID Cards:</span> <span class="totalstu">
+                        <%= pendingCount %>
+                    </span></div>
+            </div>
+        </div>
+
+        <!----------------                         ----------------- -->
+        <!----------------  ADD NEW STUDENT  ----------------- -->
+        <!----------------                         ----------------- -->
+        <div class="addStuForm" id="addStudentForm" style="display: none;">
+            <h3>Add New Student</h3>
+            <form action="/class-teacher/<%= teacher._id %>/add-student" class="student-form" method="POST"
+                enctype="multipart/form-data">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="fullName">Full Name<span>*</span></label>
+                        <input type="text" name="name" id="fullName" placeholder="Enter full name" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rollNo">Roll No.<span>*</span></label>
+                        <input type="number" name="rollNo" id="rollNo" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="class">Class<span>*</span></label>
+                        <input type="text" name="class" id="class" value="<%= teacher.class %>" readonly />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="section">Section<span>*</span></label>
+                        <input type="text" name="section" value="<%= teacher.section %>" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fathersName">Father's Name<span>*</span></label>
+                        <input type="text" name="fathername" id="fathersName" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="number">Contact Number<span>*</span></label>
+                        <input type="number" name="contact" id="mobNumber" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">Address<span>*</span></label>
+                        <input type="text" name="address" id="address" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dob">DOB<span>*</span></label>
+                        <input type="date" name="dob" id="date" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="class">Upload Passport size photo<span>*</span></label>
+                        <input type="file" name="photo" accept="image/*" id="photo" required />
+                    </div>
+
+                    <button class="submit-btn" type="submit">Add Student</button>
+
+                </div>
+            </form>
+            <!-- Excel upload form below student form -->
+            <div class="excelUploadSection" style="margin: 2em 0;">
+              <h3>Bulk Upload Students via Excel</h3>
+              <form action="/class-teacher/<%= teacher._id %>/upload-students-excel" method="POST" enctype="multipart/form-data">
+                <input type="file" name="excelFile" accept=".xlsx,.xls" required>
+                <button type="submit" class="submit-btn">Upload Excel</button>
+              </form>
+              <p style="font-size: 0.9em; color: #555;">Excel columns should include: rollNo, name, contact, address, dob, fathername, mothername, house, nicCode, penNo, section</p>
+            </div>
+        </div>
+
+        <!-- cropper model -->
+       <!-- Cropper Modal -->
+<div id="cropperModal" class="modal" style="display:none">
+    <div class="modal-content">
+      <h2>Crop Your Passport Size Photo</h2>
+      <div class="image-container">
+        <img id="imageToCrop" alt="To be cropped" />
+      </div>
+      <div class="button-group">
+        <button id="cropButton" class="btn-primary">Crop & Save</button>
+        <button id="cancelCrop" class="btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+        <!-- Student Table -->
+        <div id="studentTable" class="student-table" style="display: none; max-height: 600px; overflow-y: auto;">
+            <input type="text" id="searchInput" placeholder="Search by Name or Roll No..." class="search-bar" />
+            <table id="studentsDataTable">
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Roll No</th>
+                        <th>Name</th>
+                        <th>DOB</th>
+                        <th>Contact</th>
+                        <th>Photo</th>
+                        <th>Address</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+
+                <% let serial = 1; %>
+                <% students.forEach(student=> { %>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <%= serial++ %>
+                            </td>
+                            <td>
+                                 <%= student.rollNo ? student.rollNo : 'N/A' %>
+                            </td>
+
+                            <td>
+                                <%= student.name %>
+                            </td>
+                            <td>
+                                 <%= student.dob ? student.dob.toDateString() : 'N/A' %>
+                            </td>
+
+                            <td>
+                                <%= student.contact %>
+                            </td>
+                            
+                            <td>
+                                <% if(student.photo) { %>
+                                    <button class="view-image-btn" data-img="<%= student.photo %>">View</button>
+                                <% } else { %>
+                                    <form action="/class-teacher/<%= teacher._id %>/upload-photo/<%= student._id %>" method="POST" enctype="multipart/form-data" style="display:inline;" class="photo-upload-form">
+                                        <input type="file" name="photo" accept="image/*" required style="display:none;" class="photo-input">
+                                        <button type="button" class="upload-trigger-btn">Upload Photo</button>
+                                    </form>
+                                <% } %>
+                            </td>
+
+                            <td>
+                              <%= student.address %>
+                            </td>
+
+                            <td>
+                                <%= student.idCardStatus %>
+                            </td>
+
+                        </tr>
+                    </tbody>
+                    <% }) %>
+            </table>
+        </div>
+
+        <div class="popup-overlay" id="imagePopup" style="display: none;">
+            <div class="popup-form" style="max-width: 400px;">
+              <span class="close-btn" onclick="closeImagePopup()">×</span>
+              <h2>Student Image</h2>
+              <img id="popupStudentImage" src="" alt="Student Photo" style="width: 100%; border-radius: 8px; margin-top: 15px;" />
+            </div>
+          </div>
+    </main>
+
+
+    <script src="/js/flash.js"></script>
+    <script src="/js/teacherdashboard.js" ></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize cropper for both new student form and existing student photo uploads
+            function initializeCropper(fileInput, form) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imageToCrop.src = e.target.result;
+                    cropperModal.style.display = 'block';
+                    
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+                    
+                    cropper = new Cropper(imageToCrop, {
+                        aspectRatio: 3/4,  // Passport size ratio
+                        viewMode: 1,
+                        autoCropArea: 1,
+                        movable: true,
+                        zoomable: true,
+                        rotatable: false,
+                        scalable: false,
+                        minContainerWidth: 300,
+                        minContainerHeight: 400,
+                    });
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+
+                // Store the form that triggered the crop
+                cropperModal.dataset.activeForm = form ? form.id : 'newStudentForm';
+            }
+
+            // Handle photo upload for new student form
+            const newStudentPhotoInput = document.getElementById('photo');
+            if (newStudentPhotoInput) {
+                newStudentPhotoInput.addEventListener('change', function(e) {
+                    if (this.files && this.files.length > 0) {
+                        initializeCropper(this);
+                    }
+                });
+            }
+
+            // Handle photo upload for existing students
+            const photoUploadForms = document.querySelectorAll('.photo-upload-form');
+            photoUploadForms.forEach((form, index) => {
+                // Assign unique ID to each form
+                form.id = `photoUploadForm_${index}`;
+                
+                const fileInput = form.querySelector('.photo-input');
+                const uploadButton = form.querySelector('.upload-trigger-btn');
+                
+                uploadButton.addEventListener('click', () => fileInput.click());
+                
+                fileInput.addEventListener('change', function(e) {
+                    if (this.files && this.files.length > 0) {
+                        e.preventDefault();
+                        initializeCropper(this, form);
+                    }
+                });
+            });
+
+            // Handle crop button click
+            document.getElementById('cropButton').addEventListener('click', function() {
+                const canvas = cropper.getCroppedCanvas({
+                    width: 300,
+                    height: 400,
+                });
+
+                canvas.toBlob(function(blob) {
+                    const newFile = new File([blob], "cropped_photo.jpg", { type: 'image/jpeg' });
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(newFile);
+
+                    // Get the active form ID from the modal's dataset
+                    const activeFormId = cropperModal.dataset.activeForm;
+                    
+                    if (activeFormId === 'newStudentForm') {
+                        // For new student form
+                        newStudentPhotoInput.files = dataTransfer.files;
+                    } else {
+                        // For existing student photo upload
+                        const activeForm = document.getElementById(activeFormId);
+                        const fileInput = activeForm.querySelector('.photo-input');
+                        fileInput.files = dataTransfer.files;
+                        activeForm.submit();
+                    }
+
+                    cropperModal.style.display = 'none';
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+                }, 'image/jpeg');
+            });
+
+            // Handle cancel button click
+            document.getElementById('cancelCrop').addEventListener('click', function() {
+                cropperModal.style.display = 'none';
+                if (cropper) {
+                    cropper.destroy();
+                }
+                
+                // Reset the file input of the active form
+                const activeFormId = cropperModal.dataset.activeForm;
+                if (activeFormId === 'newStudentForm') {
+                    newStudentPhotoInput.value = '';
+                } else {
+                    const activeForm = document.getElementById(activeFormId);
+                    const fileInput = activeForm.querySelector('.photo-input');
+                    fileInput.value = '';
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

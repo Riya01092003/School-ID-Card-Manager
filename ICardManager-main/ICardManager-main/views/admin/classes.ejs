@@ -1,0 +1,49 @@
+<% layout("/layouts/boilerplate") %> 
+  <body>
+
+      <section class="classes">
+        <div class="classes-table-container">
+          <h3>List of all classes</h3>
+  
+          <% if (classes.length> 0) { %>
+            <table class="classes-table" >
+              <thead>
+                <tr>
+                  <th>Class</th>
+                  <th>Section</th>
+                  <th>Class Teacher Name</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+  
+              <tbody id="classes-table-body">
+                <% classes.forEach(classItem=> { %>
+                  <tr>
+                    <td>
+                      <%= classItem.class %>
+                    </td>
+                    <td>
+                      <%= classItem.section %>
+                    </td>
+                    <td>
+                      <%= classItem.fullName %>
+                    </td>
+                    <td class="action">
+                      <a href="/admin/schools/<%= schoolId %>/classes/<%= classItem._id %>/students">View Students</a>
+                    </td>
+                  </tr>
+                  <% }) %>
+              </tbody>
+            </table>
+            <% } else { %>
+              <p class="noClassError">No classes available for this school :(</p>
+              <% } %>
+  
+        </div>
+      </section>
+    </main>
+
+  
+  
+  </body>
+  

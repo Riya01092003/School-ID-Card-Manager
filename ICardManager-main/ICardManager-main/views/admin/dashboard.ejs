@@ -1,0 +1,48 @@
+<% layout("/layouts/boilerplate") %> 
+
+<body>
+
+        <!-- <-----------------------------                       ----------------- -->
+        <!-- <----------------------------       DASHBOARD     ----------------- -->
+        <!-- <-----------------------------                       ----------------- -->
+        <section id="dashboard" class="section active">
+            <div class="stats">
+                <div class="card" style="animation-delay: 0.1s;">
+                    <div class="img"><img src="/images/graduated.png" alt="" c></div>
+                    <div class="text">Total Schools: <span id="total-students">
+                            <%= totalSchools %>
+                        </span></div>
+                </div>
+                <div class="card" style="animation-delay: 0.3s;">
+                    <div class="img tea"><img src="/images/chalkboard-user.png" alt=""> </div>
+                    <div class="text">Total Students: <span id="total-teachers">
+                            <%= totalStudents %>
+                        </span></div>
+                </div>
+                <div class="card" style="animation-delay: 0.5s;">
+                    <div class="img idcards"><img src="/images/identification.png" alt=""></div>
+                    <div class="text"> pending ID cards:<span id="total-idcards">
+                            <%= pendingRequests %>
+                        </span></div>
+                </div>
+            </div>
+
+        </section>
+
+        
+
+
+        <div class="popup-overlay" id="imagePopup" style="display: none;">
+            <div class="popup-form" style="max-width: 400px;">
+              <span class="close-btn" onclick="closeImagePopup()">x</span>
+              <h2>Student Image</h2>
+              <img id="popupStudentImage" src="" alt="school logo" style="width: 100%; border-radius: 8px; margin-top: 15px;" />
+            </div>
+          </div>
+    </main>
+
+
+
+
+</body>
+

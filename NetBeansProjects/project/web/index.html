@@ -1,0 +1,90 @@
+<!-- login.jsp -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        /* Page layout styling */
+        body {
+            font-family: 'Playfair Display', serif;
+            background: url('https://tse2.mm.bing.net/th?id=OIP.Xvj4bCGgHylpOSPOKaRSDgAAAA&pid=Api&P=0&h=180') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        /* Overlay for readability */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5); /* Dark overlay */
+            z-index: 1;
+        }
+        /* Login container styling */
+        .login-container {
+            position: relative;
+            z-index: 2;
+            background-color: #ffffff;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            width: 350px;
+            text-align: center;
+        }
+        /* Heading styling */
+        h2 {
+            font-family: 'Playfair Display', serif;
+            color: #6b4f4f;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+        /* Input and button styling */
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Roboto', sans-serif;
+        }
+        input[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #b45f04;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-family: 'Roboto', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #ff9000;
+        }
+        /* Error message styling */
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+    <div class="login-container">
+        <h2>Restaurant Management</h2>
+        <form action="loginServlet" method="post">
+            <input type="text" name="username" placeholder="Username" required/>
+            <input type="password" name="password" placeholder="Password" required/>
+            <input type="submit" value="Login"/>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
+-->
+<html>
+    <head>
+        <title>Login Page</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            /* Body Styling */
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f0f0f0;
+                margin: 0;
+                padding: 0;
+                color: #333;
+            }
+
+            /* Center alignment without a box */
+            h2 {
+                text-align: center;
+                margin-top: 50px;
+                font-size: 24px;
+                color: #4f4f4f;
+            }
+
+            /* Form Styling */
+            form {
+                margin: 0 auto;
+                width: 50%;
+                max-width: 400px;
+                color: #333;
+            }
+
+            label {
+                display: block;
+                font-size: 16px;
+                margin-bottom: 8px;
+                color: #555;
+            }
+
+            input[type="text"], input[type="password"] {
+                width: 100%;
+                padding: 10px;
+                font-size: 14px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                margin-bottom: 15px;
+            }
+
+            button {
+                background-color: #4f4f4f;
+                color: white;
+                font-size: 16px;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                cursor: pointer;
+                width: 100%;
+                transition: background-color 0.3s ease;
+            }
+
+            button:hover {
+                background-color: #6f6f6f;
+            }
+
+            /* Subtle focus effects */
+            input:focus {
+                outline: none;
+                border: 1px solid #4f4f4f;
+                box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            }
+
+            /* Additional styles for responsiveness */
+            @media (max-width: 600px) {
+                form {
+                    width: 90%;
+                }
+
+                h2 {
+                    font-size: 20px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Login</h2>
+        <form action="login.jsp" method="post">
+            <label>Username:</label>
+            <input type="text" name="username" required>
+            
+            <label>Password:</label>
+            <input type="password" name="password" required>
+            
+            <button type="submit">Login</button>
+        </form>
+    </body>
+</html>
+

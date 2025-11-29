@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/flash.css">
+    <link rel="stylesheet" href="/css/admin-login.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Anton&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
+    </style>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Anton&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
+    </style>
+
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_forward" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_back" />
+
+
+</head>
+
+<body>
+    <% if (success_msg && success_msg.length) { %>
+        <div class="flash-message success">
+          <span><%= success_msg %></span>
+          <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        </div>
+      <% } %>
+      
+      <% if (error_msg && error_msg.length) { %>
+        <div class="flash-message error">
+          <span><%= error_msg %></span>
+          <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        </div>
+      <% } %>
+
+
+    <div class="images">
+        <object type="image/svg+xml" data="/images/login svg.svg" ></object>
+    </div>
+
+
+
+    <div class="halfright">
+        <form action="/admin/login" method="POST" class="login-container " id="step1">
+
+            <div class="welcome">
+                <h1>Welcome!</h1>
+                <p>Mr. Pokhar Mal Kumawat</p>
+                <p>Fill up the following details to sign in to your dashboard.</p>
+            </div>
+            <div class="input-field">
+                <input type="text" name="email"  placeholder=" " id="email" required>
+                <label for="email">Username</label>
+            </div>
+
+
+
+            <div class="input-field">
+                <input type="password" name="password" placeholder=" " id="password" required>
+                <label for="password"> Password</label>
+            </div>
+       
+            <button type="submit" class="btn-login" id="loginbtn">Sign in </button>
+
+        
+        </form>
+
+        <script src="/js/flash.js"></script>
+
+</body>
+
+</html>
+</body>
+</html>
